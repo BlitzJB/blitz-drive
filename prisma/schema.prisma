@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String                @id @default(uuid())
+  username         String                @unique
+  passwordHash     String
+  name             String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  files            FileReference[]
+  sessions         Session[]
+  devices          AuthenticatorDevice[]
+  fingerprintHash  String?
+  currentChallenge String? // Add this line
+  folders          Folder[]
+}
+
+model FileContent {
+  id           String          @id @default(uuid())
+  hash         String          @unique
+  path         String          @unique
+  size         Int
+  mimeType     String
+  thumbnailUrl String?
+  extension    String // Add this line
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  references   FileReference[]
+}
+
+model FileReference {
+  id            String      @id @default(cuid())
+  name          String
+  folderPath    String      @default("/")  // Add this line
+  folderId      String?
+  folder        Folder?     @relation(fields: [folderId], references: [id])
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  fileContentId String
+  fileContent   FileContent @relation(fields: [fileContentId], references: [id])
+  tags          Tag[]
+  metadata      Metadata[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Tag {
+  id    String          @id @default(uuid())
+  name  String          @unique
+  files FileReference[]
+}
+
+model Metadata {
+  id              String        @id @default(uuid())
+  key             String
+  value           String
+  type            String
+  fileReferenceId String
+  fileReference   FileReference @relation(fields: [fileReferenceId], references: [id])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  token        String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  signInMethod String // 'password' or 'fingerprint'
+}
+
+model AuthenticatorDevice {
+  id           String  @id @default(uuid())
+  credentialID String
+  publicKey    String
+  counter      Int
+  transports   String
+  challenge    String?
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+  name         String // Add this line
+}
+
+model Folder {
+  id            String          @id @default(cuid())
+  name          String
+  path          String
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  FileReference FileReference[]
+
+  @@unique([userId, path, name])
+}
