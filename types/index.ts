@@ -17,3 +17,12 @@ export interface MetadataItem {
 }
 
 export type ViewType = 'grid' | 'list' | 'gallery'
+
+export interface DriveSourceFile {
+    id: string
+    name: string
+    fileContent: {
+        buffer: Buffer
+        mimeType: string
+    }
+}

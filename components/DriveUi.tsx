@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Grid, List, Image, Upload, Plus } from 'lucide-react'
+import { Grid, List, Image, Upload, Plus, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { FileCard } from './FileCard'
 import { UploadModal } from './UploadModal'
 import { BreadcrumbNav } from './BreadcrumbNav'
@@ -14,12 +14,19 @@ import { FileItem, ViewType } from '@/types'
 import { Toaster } from 'react-hot-toast'
 import { CreateFolderModal } from './CreateFolderModal'
 import { motion, AnimatePresence } from 'framer-motion'
+import NextImage from 'next/image'
+import path from 'path'
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
+import { GalleryView } from './GalleryView'
 
 function DriveUiContent({ currentPath, setCurrentPath }: { currentPath: string[], setCurrentPath: (path: string[]) => void }) {
   const [view, setView] = useState<ViewType>('grid')
   const [items, setItems] = useState<FileItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false)
+  const [galleryIndex, setGalleryIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const router = useRouter()
 
   const {
@@ -111,6 +118,21 @@ function DriveUiContent({ currentPath, setCurrentPath }: { currentPath: string[]
     },
   }
 
+  const openLightbox = (index: number) => {
+    setGalleryIndex(index)
+    setIsLightboxOpen(true)
+  }
+
+  const closeLightbox = () => {
+    setIsLightboxOpen(false)
+  }
+
+  const galleryItems = items.filter(item => item.type === 'file' && item.fileType?.startsWith('image/'))
+
+  const getFileExtension = (fileName: string): string => {
+    return path.extname(fileName).toLowerCase()
+  }
+
   return (
     <div className="min-h-screen p-4 bg-background">
       <Toaster position="top-right" />
@@ -186,9 +208,33 @@ function DriveUiContent({ currentPath, setCurrentPath }: { currentPath: string[]
           </AnimatePresence>
         </TabsContent>
         <TabsContent value="gallery">
-          <div className="text-center py-10">Gallery view not implemented yet</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {!isLoading && galleryItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="cursor-pointer"
+                onClick={() => openLightbox(index)}
+              >
+                <NextImage
+                  src={item.thumbnailUrl || '/placeholder-image.jpg'}
+                  alt={item.name}
+                  width={200}
+                  height={200}
+                  className="object-cover w-full h-48"
+                />
+              </div>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
+
+      <GalleryView
+        isOpen={isLightboxOpen}
+        onClose={closeLightbox}
+        items={galleryItems}
+        initialIndex={galleryIndex}
+        onIndexChange={setGalleryIndex}
+      />
 
       <UploadModal
         isOpen={isUploadModalOpen}
