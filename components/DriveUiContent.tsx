@@ -154,32 +154,52 @@ export default function DriveUiContent({
     }
   }, [itemToRestore, onRestore, fetchItems, router])
 
-  const handleDeleteClick = (item: FileItem) => {
-    setItemToDelete(item)
-    setDeleteDialogOpen(true)
-  }
+  const handleDeleteClick = useCallback(async (item: FileItem) => {
+    if (item.type === 'folder') {
+      setItemToDelete(item)
+      setDeleteDialogOpen(true)
+    } else {
+      // Existing file delete logic
+      setItemToDelete(item)
+      setDeleteDialogOpen(true)
+    }
+  }, [])
 
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return
 
     try {
-      if (isBin && onDelete) {
-        await onDelete(itemToDelete.id)
-        toast.success('Item permanently deleted')
-      } else {
-        // Move to bin logic
-        const response = await fetch(`/api/drive/move-to-bin/${itemToDelete.id}`, {
-          method: 'POST',
+      if (itemToDelete.type === 'folder') {
+        const response = await fetch(`/api/drive/folder/${itemToDelete.id}`, {
+          method: 'DELETE',
         })
+
         if (!response.ok) {
-          throw new Error('Failed to move item to bin')
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to delete folder')
         }
-        toast.success('Item moved to bin')
+
+        toast.success('Folder deleted successfully')
+      } else {
+        // Existing file delete logic
+        if (isBin && onDelete) {
+          await onDelete(itemToDelete.id)
+          toast.success('Item permanently deleted')
+        } else {
+          // Move to bin logic
+          const response = await fetch(`/api/drive/move-to-bin/${itemToDelete.id}`, {
+            method: 'POST',
+          })
+          if (!response.ok) {
+            throw new Error('Failed to move item to bin')
+          }
+          toast.success('Item moved to bin')
+        }
       }
       await fetchItems()
     } catch (error) {
       console.error('Error deleting item:', error)
-      toast.error(isBin ? 'Failed to delete item' : 'Failed to move item to bin')
+      toast.error(error instanceof Error ? error.message : 'Failed to delete item')
     } finally {
       setDeleteDialogOpen(false)
       setItemToDelete(null)
@@ -331,10 +351,10 @@ export default function DriveUiContent({
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isBin ? 'Permanently Delete' : 'Move to Bin'}</DialogTitle>
+            <DialogTitle>{itemToDelete?.type === 'folder' ? 'Delete Folder' : 'Move to Bin'}</DialogTitle>
             <DialogDescription>
-              {isBin
-                ? `Are you sure you want to permanently delete "${itemToDelete?.name}"? This action cannot be undone.`
+              {itemToDelete?.type === 'folder'
+                ? `Are you sure you want to delete the folder "${itemToDelete.name}"? This action cannot be undone.`
                 : `Are you sure you want to move "${itemToDelete?.name}" to the bin? You can restore it later from the bin before ${new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toLocaleDateString()}.`
               }
             </DialogDescription>
@@ -345,7 +365,7 @@ export default function DriveUiContent({
               variant="destructive" 
               onClick={handleConfirmDelete}
             >
-              {isBin ? 'Permanently Delete' : 'Move to Bin'}
+              {itemToDelete?.type === 'folder' ? 'Delete Folder' : 'Move to Bin'}
             </Button>
           </DialogFooter>
         </DialogContent>

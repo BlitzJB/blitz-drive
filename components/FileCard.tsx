@@ -55,7 +55,7 @@ export function FileCard({
         <DropdownMenuItem onClick={() => onDelete(item)}>
           <Trash2 className={`mr-2 h-4 w-4 ${isBin ? 'text-red-500' : 'text-muted-foreground'}`} />
           <span className={isBin ? 'text-red-500' : 'text-muted-foreground'}>
-            {isBin ? 'Delete Permanently' : 'Move to Bin'}
+            {isBin ? 'Delete Permanently' : item.type === 'folder' ? 'Delete Folder' : 'Move to Bin'}
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>

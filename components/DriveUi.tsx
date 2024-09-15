@@ -27,7 +27,8 @@ export function DriveUi({ initialPath = [] }: DriveUiProps) {
         ...data.folders.map((folder: any) => ({
           type: 'folder',
           name: folder.name,
-          id: folder.path,
+          id: folder.id,
+          path: folder.path,
           createdAt: new Date(),
           updatedAt: new Date(),
         })),
