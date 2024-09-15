@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,6 +47,8 @@ export default function DriveUiContent({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<FileItem | null>(null)
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false)
+  const [itemToRestore, setItemToRestore] = useState<FileItem | null>(null)
   const router = useRouter()
 
   const {
@@ -113,18 +115,44 @@ export default function DriveUiContent({
     return path.extname(fileName).toLowerCase()
   }
 
-  const handleRestoreClick = async (item: FileItem) => {
-    if (onRestore) {
-      try {
-        await onRestore(item.id)
-        toast.success('Item restored successfully')
-        await fetchItems()
-      } catch (error) {
-        console.error('Error restoring item:', error)
-        toast.error('Failed to restore item')
-      }
+  const handleRestoreClick = useCallback((item: FileItem) => {
+    setItemToRestore(item)
+    setRestoreDialogOpen(true)
+  }, [])
+
+  const handleConfirmRestore = useCallback(async () => {
+    if (!itemToRestore) return
+    if (!onRestore) return
+
+    try {
+      await onRestore(itemToRestore.id)
+      setRestoreDialogOpen(false)
+      await fetchItems()
+      
+      toast.success(
+        (t) => (
+          <div>
+            <p>Item restored successfully</p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                toast.dismiss(t.id)
+                router.push(`/drive/${itemToRestore.folderPath}`)
+              }}
+            >
+              View at destination
+            </Button>
+          </div>
+        ),
+        { duration: 5000 }
+      )
+    } catch (error) {
+      console.error('Error restoring item:', error)
+      toast.error('Failed to restore item')
+    } finally {
+      setItemToRestore(null)
     }
-  }
+  }, [itemToRestore, onRestore, fetchItems, router])
 
   const handleDeleteClick = (item: FileItem) => {
     setItemToDelete(item)
@@ -164,7 +192,7 @@ export default function DriveUiContent({
 
   return (
     <div className="min-h-screen p-4 bg-background">
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">{isBin ? 'Bin' : 'Blitz Drive'}</h1>
         <div className="flex items-center space-x-2">
@@ -228,7 +256,7 @@ export default function DriveUiContent({
                   navigateToFolder={navigateToFolder} 
                   previewUrl={item.thumbnailUrl || ''} 
                   onDelete={handleDeleteClick}
-                  onRestore={isBin ? handleRestoreClick : undefined}
+                  onRestore={handleRestoreClick}
                   isBin={isBin}
                 />
               ))}
@@ -251,7 +279,7 @@ export default function DriveUiContent({
                   navigateToFolder={navigateToFolder} 
                   previewUrl={item.thumbnailUrl || ''} 
                   onDelete={handleDeleteClick}
-                  onRestore={isBin ? handleRestoreClick : undefined}
+                  onRestore={handleRestoreClick}
                   isBin={isBin}
                 />
               ))}
@@ -319,6 +347,22 @@ export default function DriveUiContent({
             >
               {isBin ? 'Permanently Delete' : 'Move to Bin'}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={restoreDialogOpen} onOpenChange={setRestoreDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Restore Item</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to restore "{itemToRestore?.name}"? 
+              It will be placed back in its original location: {itemToRestore?.folderPath}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRestoreDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleConfirmRestore}>Restore</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

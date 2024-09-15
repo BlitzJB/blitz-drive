@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileIcon, FolderIcon, MoreVertical, Trash2 } from 'lucide-react'
+import { ArrowUpLeft, FileIcon, FolderIcon, MoreVertical, Trash2 } from 'lucide-react'
 import { FileItem, ViewType } from '@/types'
 import { motion } from 'framer-motion'
 import {
@@ -17,7 +17,7 @@ interface FileCardProps {
   navigateToFolder: (folderName: string) => void
   previewUrl: string
   onDelete: (item: FileItem) => void
-  onRestore?: (item: FileItem) => void
+  onRestore: (item: FileItem) => void
   isBin?: boolean
 }
 
@@ -46,6 +46,12 @@ export function FileCard({
         <Button variant="ghost" size="sm"><MoreVertical className="h-4 w-4" /></Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        {isBin ? (
+          <DropdownMenuItem onClick={() => onRestore(item)}>
+            <ArrowUpLeft className="mr-2 h-4 w-4 text-green-500" />
+            <span className="text-green-500">Restore</span>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem onClick={() => onDelete(item)}>
           <Trash2 className={`mr-2 h-4 w-4 ${isBin ? 'text-red-500' : 'text-muted-foreground'}`} />
           <span className={isBin ? 'text-red-500' : 'text-muted-foreground'}>

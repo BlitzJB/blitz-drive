@@ -1,6 +1,7 @@
 export interface FileItem {
     id: string
     type: 'file' | 'folder'
+    folderPath: string
     name: string
     items?: FileItem[]
     size?: number

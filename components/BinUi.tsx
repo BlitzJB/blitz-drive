@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { FileUploadProvider } from '@/contexts/FileUploadContext'
 import { FileItem } from '@/types'
 import DriveUiContent from './DriveUiContent'
-import toast from 'react-hot-toast'
+// import toast from 'react-hot-toast'
 
 interface BinUiProps {
   initialPath?: string[]
@@ -32,7 +32,7 @@ export function BinUi({ initialPath = [] }: BinUiProps) {
       setItems(binItems)
     } catch (error) {
       console.error('Error fetching bin items:', error)
-      toast.error("There was an error fetching the bin items. Please try again.")
+    //   toast.error("There was an error fetching the bin items. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -50,11 +50,11 @@ export function BinUi({ initialPath = [] }: BinUiProps) {
       if (!response.ok) {
         throw new Error('Failed to restore item')
       }
-      toast.success('Item restored successfully')
+    //   toast.success('Item restored successfully')
       await fetchBinItems() // Refresh the bin items
     } catch (error) {
       console.error('Error restoring item:', error)
-      toast.error('Failed to restore item')
+    //   toast.error('Failed to restore item')
     }
   }
 
@@ -66,11 +66,11 @@ export function BinUi({ initialPath = [] }: BinUiProps) {
       if (!response.ok) {
         throw new Error('Failed to delete item')
       }
-      toast.success('Item deleted permanently')
+    //   toast.success('Item deleted permanently')
       await fetchBinItems() // Refresh the bin items
     } catch (error) {
       console.error('Error deleting item:', error)
-      toast.error('Failed to delete item')
+    //   toast.error('Failed to delete item')
     }
   }
 

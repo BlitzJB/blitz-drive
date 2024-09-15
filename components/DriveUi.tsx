@@ -45,7 +45,7 @@ export function DriveUi({ initialPath = [] }: DriveUiProps) {
       setItems(newItems)
     } catch (error) {
       console.error('Error fetching items:', error)
-      toast.error("There was an error fetching the items. Please try again.")
+      // toast.error("There was an error fetching the items. Please try again.")
     } finally {
       setIsLoading(false)
     }
