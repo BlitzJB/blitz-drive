@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getFileById } from '@/lib/drive'
 import { PrismaClient } from '@prisma/client'
+import { updateFileReference } from '@/lib/drive'
 
 const prisma = new PrismaClient()
 
@@ -35,5 +36,26 @@ export async function GET(
     } catch (error) {
         console.error('Error fetching file:', error)
         return new NextResponse('Internal Server Error', { status: 500 })
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const { id } = params
+        const oneYearFromNow = new Date()
+        oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
+
+        await updateFileReference(id, {
+            isBin: true,
+            binExpireDate: oneYearFromNow,
+        })
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error('Error deleting file:', error)
+        return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 })
     }
 }

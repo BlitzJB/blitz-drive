@@ -41,7 +41,7 @@ model FileContent {
 model FileReference {
   id            String      @id @default(cuid())
   name          String
-  folderPath    String      @default("/")  // Add this line
+  folderPath    String      @default("/")
   folderId      String?
   folder        Folder?     @relation(fields: [folderId], references: [id])
   userId        String
@@ -52,6 +52,8 @@ model FileReference {
   metadata      Metadata[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  isBin         Boolean     @default(false)
+  binExpireDate DateTime?
 }
 
 model Tag {

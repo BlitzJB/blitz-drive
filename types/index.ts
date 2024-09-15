@@ -26,3 +26,9 @@ export interface DriveSourceFile {
         mimeType: string
     }
 }
+
+export interface FileReference {
+    // ... existing properties ...
+    isBin: boolean
+    binExpireDate: Date | null
+}

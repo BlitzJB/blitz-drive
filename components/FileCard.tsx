@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileIcon, FolderIcon, MoreVertical } from 'lucide-react'
+import { FileIcon, FolderIcon, MoreVertical, Trash2 } from 'lucide-react'
 import { FileItem, ViewType } from '@/types'
 import { motion } from 'framer-motion'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface FileCardProps {
   item: FileItem
@@ -10,6 +16,9 @@ interface FileCardProps {
   view: ViewType
   navigateToFolder: (folderName: string) => void
   previewUrl: string
+  onDelete: (item: FileItem) => void
+  onRestore?: (item: FileItem) => void
+  isBin?: boolean
 }
 
 const itemVariants = {
@@ -18,9 +27,34 @@ const itemVariants = {
   exit: { opacity: 0, y: -20 },
 }
 
-export function FileCard({ item, items, view, navigateToFolder, previewUrl }: FileCardProps) {
+export function FileCard({
+  item,
+  items,
+  view,
+  navigateToFolder,
+  previewUrl,
+  onDelete,
+  onRestore,
+  isBin = false
+}: FileCardProps) {
   const isFolder = item.type === 'folder'
   const isImage = item.fileType?.startsWith('image/')
+
+  const renderMoreOptions = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm"><MoreVertical className="h-4 w-4" /></Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => onDelete(item)}>
+          <Trash2 className={`mr-2 h-4 w-4 ${isBin ? 'text-red-500' : 'text-muted-foreground'}`} />
+          <span className={isBin ? 'text-red-500' : 'text-muted-foreground'}>
+            {isBin ? 'Delete Permanently' : 'Move to Bin'}
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 
   if (view === 'grid') {
     return (
@@ -35,7 +69,7 @@ export function FileCard({ item, items, view, navigateToFolder, previewUrl }: Fi
         <Card className="w-full">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{item.name}</CardTitle>
-            <Button variant="ghost" size="sm"><MoreVertical className="h-4 w-4" /></Button>
+            {renderMoreOptions()}
           </CardHeader>
           <CardContent>
             {isFolder ? (
@@ -83,7 +117,7 @@ export function FileCard({ item, items, view, navigateToFolder, previewUrl }: Fi
             {isFolder ? `${items.length} items` : `${item.size} bytes`}
           </p>
         </div>
-        <Button variant="ghost" size="sm"><MoreVertical className="h-4 w-4" /></Button>
+        {renderMoreOptions()}
       </div>
     </motion.div>
   )

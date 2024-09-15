@@ -18,9 +18,10 @@ interface UploadModalProps {
   isOpen: boolean
   onClose: () => void
   currentPath: string[]
+  fetchItems: () => Promise<void>
 }
 
-export function UploadModal({ isOpen, onClose, currentPath }: UploadModalProps) {
+export function UploadModal({ isOpen, onClose, currentPath, fetchItems }: UploadModalProps) {
   const { selectedFiles, handleUpload } = useFileUploadContext()
   const [currentFileIndex, setCurrentFileIndex] = useState(0)
   const [fileName, setFileName] = useState('')
@@ -73,6 +74,7 @@ export function UploadModal({ isOpen, onClose, currentPath }: UploadModalProps) 
       toast.error("There was an error uploading the file. Please try again.")
     } finally {
       setIsUploading(false)
+      await fetchItems()
     }
   }
 
