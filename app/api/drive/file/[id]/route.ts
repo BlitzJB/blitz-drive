@@ -29,9 +29,10 @@ export async function GET(
             return new NextResponse('File not found', { status: 404 })
         }
 
-        const response = new NextResponse(file.fileContent.buffer)
+        const uint8Array = new Uint8Array(file.fileContent.buffer)
+        const response = new NextResponse(uint8Array)
         response.headers.set('Content-Type', file.fileContent.mimeType)
-        response.headers.set('Content-Disposition', `inline; filename="${file.name}"`)
+        response.headers.set('Content-Disposition', `inline; filename="${encodeURIComponent(file.name)}"`)
         return response
     } catch (error) {
         console.error('Error fetching file:', error)
