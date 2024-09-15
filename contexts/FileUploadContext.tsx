@@ -6,9 +6,12 @@ interface FileUploadContextType {
   isUploadModalOpen: boolean
   setIsUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void
-  handleUpload: (formData: FormData) => Promise<any>
+  handleUpload: (formDataArray: FormData[]) => Promise<void>
   fileInputRef: React.RefObject<HTMLInputElement>
   selectedFiles: File[]
+  uploadProgress: { [key: string]: number }
+  overallProgress: number
+  isUploading: boolean
 }
 
 const FileUploadContext = createContext<FileUploadContextType | undefined>(undefined)

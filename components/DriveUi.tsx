@@ -5,6 +5,7 @@ import { FileUploadProvider } from '@/contexts/FileUploadContext'
 import { FileItem } from '@/types'
 import DriveUiContent from './DriveUiContent'
 import toast from 'react-hot-toast'
+import { FileUploadPopup } from './file-upload-popup'
 
 interface DriveUiProps {
   initialPath?: string[]
@@ -65,6 +66,7 @@ export function DriveUi({ initialPath = [] }: DriveUiProps) {
         isLoading={isLoading}
         fetchItems={fetchItems}
       />
+      {/* <FileUploadPopup /> */}
     </FileUploadProvider>
   )
 }

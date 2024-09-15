@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     const fileReference = await prisma.fileReference.create({
       data: {
         name: file.name,
-        folderPath, // Add this line
+        folderPath,
         userId: session.user.id,
         fileContentId: fileContent.id,
         tags: {
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         },
       },
       include: {
-        fileContent: true, // Include the fileContent in the response
+        fileContent: true,
       },
     })
 

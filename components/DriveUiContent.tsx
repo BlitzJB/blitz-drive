@@ -19,6 +19,7 @@ import path from 'path'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { GalleryView } from './GalleryView'
 import toast from 'react-hot-toast'
+import { FileUploadPopup } from './file-upload-popup'
 
 interface DriveUiContentProps {
   currentPath: string[]
@@ -386,6 +387,7 @@ export default function DriveUiContent({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <FileUploadPopup />
     </div>
   )
 }

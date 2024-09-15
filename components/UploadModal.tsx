@@ -51,27 +51,22 @@ export function UploadModal({ isOpen, onClose, currentPath, fetchItems }: Upload
   const handleFileUpload = async () => {
     setIsUploading(true)
     try {
-      const file = selectedFiles[currentFileIndex]
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('metadata', JSON.stringify(metadata))
-      formData.append('tags', JSON.stringify(selectedTags.map(tag => tag.value)))
-      formData.append('folderPath', currentPath.join('/'))
+      const formDataArray = selectedFiles.map((file, index) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('metadata', JSON.stringify(metadata))
+        formData.append('tags', JSON.stringify(selectedTags.map(tag => tag.value)))
+        formData.append('folderPath', currentPath.join('/'))
+        return formData
+      })
 
-      await handleUpload(formData)
+      await handleUpload(formDataArray)
 
-      if (currentFileIndex < selectedFiles.length - 1) {
-        setCurrentFileIndex(prev => prev + 1)
-        setFileName(selectedFiles[currentFileIndex + 1].name)
-        setSelectedTags([])
-        setMetadata([])
-      } else {
-        onClose()
-        toast.success("All files have been uploaded successfully.")
-      }
+      onClose()
+      toast.success("All files have been uploaded successfully.")
     } catch (error) {
       console.error('Upload error:', error)
-      toast.error("There was an error uploading the file. Please try again.")
+      toast.error("There was an error uploading the files. Please try again.")
     } finally {
       setIsUploading(false)
       await fetchItems()
