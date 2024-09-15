@@ -35,7 +35,7 @@ export function FileCard({
   previewUrl,
   onDelete,
   onRestore,
-  isBin = false
+  isBin = false,
 }: FileCardProps) {
   const isFolder = item.type === 'folder'
   const isImage = item.fileType?.startsWith('image/')
@@ -91,7 +91,7 @@ export function FileCard({
             )}
           </CardContent>
           <CardFooter className="text-xs text-muted-foreground">
-            {isFolder ? `${items.length} items` : `${item.size} bytes`}
+            <span>{isFolder ? `${items.length} items` : `${item.size} bytes`}</span>
           </CardFooter>
         </Card>
       </motion.div>

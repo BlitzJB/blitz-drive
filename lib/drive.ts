@@ -49,12 +49,26 @@ export async function getContents(path: string, options: { excludeBin?: boolean 
     },
     include: {
       fileContent: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
     },
   })
 
   const folders = await prisma.folder.findMany({
     where: {
       path: path,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
     },
   })
 
